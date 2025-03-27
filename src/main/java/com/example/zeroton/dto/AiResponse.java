@@ -16,11 +16,11 @@ public class AiResponse {
     public static class Choice {
 
         private int index;
-        private Message message;
+        private AiMessage aiMessage;
 
-        public Choice(int index, Message message) {
+        public Choice(int index, AiMessage aiMessage) {
             this.index = index;
-            this.message = message;
+            this.aiMessage = aiMessage;
         }
 
         public int getIndex() {
@@ -31,12 +31,12 @@ public class AiResponse {
             this.index = index;
         }
 
-        public Message getMessage() {
-            return message;
+        public AiMessage getMessage() {
+            return aiMessage;
         }
 
-        public void setMessage(Message message) {
-            this.message = message;
+        public void setMessage(AiMessage aiMessage) {
+            this.aiMessage = aiMessage;
         }
         // constructors, getters and setters
     }

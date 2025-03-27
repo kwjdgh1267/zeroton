@@ -3,7 +3,7 @@ package com.example.zeroton.service;
 import com.example.zeroton.dto.AiRequest;
 import com.example.zeroton.dto.AiResponse;
 import com.example.zeroton.dto.CustomUserDetails;
-import com.example.zeroton.dto.Message;
+import com.example.zeroton.dto.AiMessage;
 import com.example.zeroton.entity.Member;
 import com.example.zeroton.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -52,10 +53,10 @@ public class AiService {
 
         // create a request
         AiRequest request = new AiRequest(model);
-        List<Message> messages = request.getMessages();
+        List<AiMessage> aiMessages = request.getAiMessages();
 
-        messages.add(new Message("system", system));
-        messages.add(new Message("user", prompt));
+        aiMessages.add(new AiMessage("system", system));
+        aiMessages.add(new AiMessage("user", prompt));
 
 
         // call the API
@@ -68,5 +69,16 @@ public class AiService {
 //        recordRepository.save(new Record(response.getChoices().get(0).getMessage(),currentMember));//답변 저장
         return response.getChoices().get(0).getMessage().getContent();
     }
+    public Flux<String> sendChatStream(Flux<String> messages) {
+        return messages
+                .flatMap(this::callGptApi); // GPT API 호출 (가정)
+    }
+
+    private Flux<String> callGptApi(String message) {
+        // GPT API에 요청하는 부분 (여기선 더미 응답)
+        return Flux.just("GPT 응답: " + message);
+    }
+
+
 
 }

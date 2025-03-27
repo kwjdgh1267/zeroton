@@ -11,12 +11,12 @@ import java.util.List;
 public class AiRequest {
 
     private String model;
-    private List<Message> messages;
+    private List<AiMessage> aiMessages;
 
     public AiRequest(String model) {
         this.model = model;
 
-        this.messages = new ArrayList<>();
+        this.aiMessages = new ArrayList<>();
     }
 
     // getters and setters

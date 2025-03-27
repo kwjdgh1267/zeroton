@@ -11,3 +11,13 @@ spring:
       ddl-auto: create  # create, update, none
     show-sql: true
     generate-ddl: true
+
+jwt:
+  secret: "fhuiahfhaf98ahf89dshf8ahs9f8df89ahf89dshafffdfaf8as9fh89ashf98dashf9as8hfa89fhas89fhaf98dashfsa89fhdsa89fahf8d9sahfsa9f8hf8"
+
+
+openai:
+  api:
+    key: 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
+    url: https://api.openai.com/v1/chat/completions
+  model: gpt-4o-mini
