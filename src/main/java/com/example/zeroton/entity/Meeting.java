@@ -9,23 +9,33 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "Todo")
+@Document(collection = "meetings")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Todo {
+public class Meeting {
     @Id
     private String objectId;
-    private String meetingId;
-    private String content;
-    private List<String> asignee;
-    private boolean status;
 
+    private String title;
+
+    private String code;
+
+    private String host;
+
+    private List<String> participants;
+
+    private String description;
     @CreatedDate
     private LocalDateTime createdAt;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Meeting(String title) {
+        this.title = title;
+        participants = new ArrayList<>();
+    }
 }

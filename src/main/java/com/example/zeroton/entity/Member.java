@@ -9,23 +9,29 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Document(collection = "Todo")
+@Document(collection = "members")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Todo {
+public class Member{
     @Id
     private String objectId;
-    private String meetingId;
-    private String content;
-    private List<String> asignee;
-    private boolean status;
+
+    private String id;
+
+    private String password;
+
+    private String name;
 
     @CreatedDate
     private LocalDateTime createdAt;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Member(String id, String password, String name) {
+        this.id = id;
+        this.password = password;
+        this.name= name;
+    }
 }
