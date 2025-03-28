@@ -46,7 +46,7 @@ public class MeetingService {
             meeting.setCode(UUID.randomUUID().toString());
             meetingRepository.save(meeting);
             joinMeeting(meeting.getCode());
-            return "회의 생성 완료! code: "+meeting.getCode();
+            return meeting.getCode();
         }catch (Exception e){
             e.printStackTrace();
             return "error";
