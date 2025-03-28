@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Message {
+public class AiMessage {
 
     private String role;
     private String content;
