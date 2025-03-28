@@ -3,24 +3,30 @@ package com.example.zeroton.service;
 import com.example.zeroton.dto.CustomUserDetails;
 import com.example.zeroton.entity.Meeting;
 import com.example.zeroton.entity.Member;
+import com.example.zeroton.entity.Message;
 import com.example.zeroton.repository.MeetingRepository;
 import com.example.zeroton.repository.MemberRepository;
+import com.example.zeroton.repository.MessageRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final MemberRepository memberRepository;
+    private final MessageRepository messageRepository;
+    private final AiService aiService;
 
     public String createMeeting(String title){
 
@@ -57,6 +63,39 @@ public class MeetingService {
             meeting.getParticipants().add(currentMember.getObjectId());
             meetingRepository.save(meeting);
             return "회의 참가 완료!";
+        }else{
+            return "코드를 다시 확인해주세요.";
+        }
+    }
+
+    public String endMeeting(String code) throws JsonProcessingException {
+        Optional<Meeting> found = meetingRepository.findByCode(code);
+        if(found.isPresent()){
+            Meeting meeting = found.get();
+            List<Message> foundMessages = messageRepository.findAllByMeetingIdOrderByCreatedAt(meeting.getCode());
+
+            // StringBuilder를 이용해 "발화자: 내용" 형식의 문자열 생성
+            StringBuilder transcript = new StringBuilder("{\n");
+
+            for (Message msg : foundMessages) {
+                transcript.append("  \"")
+                        .append(msg.getSpeaker()) // 발화자
+                        .append("\": \"")
+                        .append(msg.getMessage()) // 내용
+                        .append("\",\n");
+            }
+
+            // 마지막 쉼표 제거 및 JSON 형식 맞추기
+            if (!foundMessages.isEmpty()) {
+                transcript.setLength(transcript.length() - 2); // 마지막 `,\n` 제거
+            }
+            transcript.append("\n}");
+
+
+            String aiResult = aiService.chat(transcript.toString());
+
+            return aiResult;
+
         }else{
             return "코드를 다시 확인해주세요.";
         }

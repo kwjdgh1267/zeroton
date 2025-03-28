@@ -1,25 +1,29 @@
 package com.example.zeroton.controller;
 
+import com.example.zeroton.dto.MessageDto;
 import com.example.zeroton.entity.Chat;
-import com.example.zeroton.service.AiService;
+import com.example.zeroton.entity.Message;
+import com.example.zeroton.repository.MessageRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/chat")
+@RequestMapping
+@RequiredArgsConstructor
+@Slf4j
 public class ChatController {
+    private final MessageRepository messageRepository;
 
-    private final AiService gptService;
+    @PostMapping("/make-data")
+    public String makeData(@RequestBody Chat chat) {
+        String meetingId=chat.getMeetingId();//코드
 
-    public ChatController(AiService gptService) {
-        this.gptService = gptService;
+        for (MessageDto message : chat.getContent()) {
+            log.info(meetingId+"-저장: "+message.getSpeaker()+ ": "+message.getMessage());
+            messageRepository.save(new Message(meetingId,message.getSpeaker(), message.getMessage()));
+        }
+        return "데이터 저장 완료";
     }
 
-    @PostMapping("/send-stream")
-    public Flux<String> sendChatStream(@RequestBody Chat chat) {
-        Flux<String> formattedMessages = Flux.fromIterable(chat.getContent())
-                .map(msg -> msg.getSpeaker() + ": " + msg.getMessage());
-
-        return gptService.sendChatStream(formattedMessages);
-    }
 }

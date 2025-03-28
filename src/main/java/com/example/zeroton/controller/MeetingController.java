@@ -1,6 +1,7 @@
 package com.example.zeroton.controller;
 
 import com.example.zeroton.service.MeetingService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,11 +25,10 @@ public class MeetingController {
         return meetingService.joinMeeting(code);
     }
 
-//    @PostMapping("/meeting/start")
-//    public String startMeeting(){
-//        //음성 채팅 참가
-//        //이때
-//    }
+    @PostMapping("/meeting/end")
+    public String endMeeting(@RequestParam String code) throws JsonProcessingException {
+        return meetingService.endMeeting(code);
+    }
 
 
 }

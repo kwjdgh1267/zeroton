@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String requestURI = httpRequest.getRequestURI();
-        if (requestURI.equals("/sign-in") || requestURI.equals("/sign-up") || requestURI.equals("/quiz/create")) {
+        if (requestURI.equals("/sign-in") || requestURI.equals("/sign-up") || requestURI.equals("/quiz/create")|| requestURI.equals("/make-data")) {
             chain.doFilter(request, response);
             return;
         }
