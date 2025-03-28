@@ -40,6 +40,20 @@ public class TodoService {
             return TodoDto.fromEntity(todoRepository.save(todo));
         });
     }
+    public String updateStatus(String id) {
+
+        Optional<Todo> found = todoRepository.findById(id);
+        if (found.isPresent()) {
+            Todo todo = found.get();
+            todo.setStatus(!(todo.isStatus()));
+            return "status : " + todo.isStatus();
+        }
+        else{
+            return "Todo를 불러오는 중 오류가 발생했습니다";
+        }
+
+    }
+
 
     public void deleteTodo(String id) {
         todoRepository.deleteById(id);
