@@ -20,7 +20,7 @@ public class Todo {
     private String objectId;
     private String meetingId;
     private String content;
-    private List<String> asignee;
+    private String asignee;
     private boolean status;
 
     @CreatedDate

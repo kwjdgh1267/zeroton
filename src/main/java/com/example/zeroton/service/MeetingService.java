@@ -9,6 +9,8 @@ import com.example.zeroton.repository.MeetingRepository;
 import com.example.zeroton.repository.MemberRepository;
 import com.example.zeroton.repository.MessageRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -43,6 +45,7 @@ public class MeetingService {
             meeting.setHost(currentMember.getObjectId());
             meeting.setCode(UUID.randomUUID().toString());
             meetingRepository.save(meeting);
+            joinMeeting(meeting.getCode());
             return "회의 생성 완료! code: "+meeting.getCode();
         }catch (Exception e){
             e.printStackTrace();
@@ -95,6 +98,16 @@ public class MeetingService {
 
 
             String aiResult = aiService.chat(transcript.toString());
+
+            // Jackson ObjectMapper를 사용하여 JSON 파싱
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(aiResult);
+            // 1. summary 추출
+            String summary = rootNode.get("summary").asText();
+            meeting.setDescription(summary);
+            meetingRepository.save(meeting);
+
+
 
             return aiResult;
 
