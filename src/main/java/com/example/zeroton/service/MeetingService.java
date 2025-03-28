@@ -1,5 +1,6 @@
 package com.example.zeroton.service;
 
+import com.example.zeroton.config.SecurityConfig;
 import com.example.zeroton.dto.CustomUserDetails;
 import com.example.zeroton.entity.Meeting;
 import com.example.zeroton.entity.Member;
@@ -27,6 +28,7 @@ public class MeetingService {
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
     private final AiService aiService;
+    private final SecurityConfig securityConfig;
 
     public String createMeeting(String title){
 
@@ -100,5 +102,18 @@ public class MeetingService {
             return "코드를 다시 확인해주세요.";
         }
     }
+
+    public Optional<Meeting> getMeetingsForMember() {
+        // 현재 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        // 현재 멤버의 objectId를 가져옴
+        Member currentMember = memberRepository.findById(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("Member not found"));
+        System.out.println(currentMember.getName());
+        // currentMember.getObjectId()가 participants에 포함된 모든 회의 조회
+        return meetingRepository.findByParticipantsContaining(currentMember.getObjectId());
+    }
+
 
 }
