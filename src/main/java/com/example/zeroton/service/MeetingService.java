@@ -116,7 +116,7 @@ public class MeetingService {
         }
     }
 
-    public Optional<Meeting> getMeetingsForMember() {
+    public List<Meeting> getMeetingsForMember() {
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -125,7 +125,7 @@ public class MeetingService {
         Member currentMember = memberRepository.findById(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("Member not found"));
         System.out.println(currentMember.getName());
         // currentMember.getObjectId()가 participants에 포함된 모든 회의 조회
-        return meetingRepository.findByParticipantsContaining(currentMember.getObjectId());
+        return meetingRepository.findAllByParticipantsContaining(currentMember.getObjectId());
     }
 
 

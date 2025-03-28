@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http:localhost:3000")
 @RestController
-@RequestMapping("/api/todos")
+@RequestMapping("/todos")
 public class TodoController {
     private final TodoService todoService;
 
@@ -38,6 +37,12 @@ public class TodoController {
     public ResponseEntity<TodoDto> updateTodo(@PathVariable String id, @RequestBody TodoDto todoDto) {
         Optional<TodoDto> updatedTodo = todoService.updateTodo(id, todoDto);
         return updatedTodo.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+    @PutMapping("/{id}")
+    public String updateStatus(@RequestBody String id) {
+        return todoService.updateStatus(id);
     }
 
     @DeleteMapping("/{id}")
