@@ -112,6 +112,33 @@ public class MeetingService {
             meetingRepository.save(meeting);
 
 
+            // 2. todo 목록 추출
+            JsonNode todoNode = rootNode.get("todo");
+            if (todoNode != null && todoNode.isObject()) {
+                List<Todo> todos = new ArrayList<>();
+
+                Iterator<Map.Entry<String, JsonNode>> fields = todoNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fields.next();
+                    String asignee = field.getKey();
+                    String content = field.getValue().asText();
+
+                    // Todo 객체 생성
+                    Todo todo = new Todo();
+                    todo.setMeetingId(meeting.getObjectId());  // 미팅 ID 설정
+                    todo.setAsignee(asignee);  // 할당자 설정
+                    todo.setContent(content);  // 할 일 내용 설정
+                    todo.setStatus(false);  // 기본 상태는 미완료로 설정
+
+                    todos.add(todo);
+                }
+
+                // 할 일 목록 저장
+                todoRepository.saveAll(todos);
+            }
+
+
+
 
             return aiResult;
 
@@ -142,7 +169,7 @@ public class MeetingService {
 
         Optional<Member> currentMember = memberRepository.findById(userDetails.getUsername());
         if(!currentMember.isPresent()){
-
+            log.info("에러 발생23123213213123123");
             return null;
         }
 
@@ -157,7 +184,9 @@ public class MeetingService {
         }
 
         // 해당 회의의 todo 리스트 가져오기
-        List<Todo> todos = todoRepository.findByMeetingId(meeting.getObjectId());
+        List<Todo> todos = todoRepository.findByMeetingId(meeting.getObjectId());//여기
+
+        log.info("todos: "+todos.size());
 
         // 결과 반환
         MeetingSummaryDto meetingSummaryDto = new MeetingSummaryDto(meeting, todos);
