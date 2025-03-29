@@ -52,6 +52,7 @@ public class MeetingService {
             joinMeeting(meeting.getCode());
             return meeting.getCode();
         } catch (Exception e) {
+
             e.printStackTrace();
             return "error";
         }

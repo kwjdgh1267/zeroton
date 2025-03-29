@@ -22,7 +22,7 @@ public class TodoController {
         return ResponseEntity.ok(todoService.getAllTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping
     public ResponseEntity<TodoDto> getTodoById(@PathVariable String id) {
         Optional<TodoDto> todo = todoService.getTodoById(id);
         return todo.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
