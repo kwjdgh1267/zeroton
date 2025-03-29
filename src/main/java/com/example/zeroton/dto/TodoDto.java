@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -22,6 +23,9 @@ public class TodoDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public TodoDto(Todo todo) {
+    }
+
     public static TodoDto fromEntity(Todo todo) {
         return new TodoDto(
                 todo.getObjectId(),
@@ -33,6 +37,12 @@ public class TodoDto {
                 todo.getUpdatedAt()
         );
     }
+
+    public static List<TodoDto> fromEntityList(List<Todo> todos) {
+        return todos.stream().map(TodoDto::fromEntity).collect(Collectors.toList());
+    }
+
+
 
     public Todo toEntity() {
         Todo todo = new Todo();
