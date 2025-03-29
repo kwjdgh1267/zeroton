@@ -1,5 +1,6 @@
 package com.example.zeroton.controller;
 
+import com.example.zeroton.dto.MeetingSummaryDto;
 import com.example.zeroton.entity.Meeting;
 import com.example.zeroton.service.MeetingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,6 +21,12 @@ public class MeetingController {
     public List<Meeting> getUserMeetings() {
         // 사용자가 소속된 회의 목록을 서비스에서 가져옴
         return meetingService.getMeetingsForMember();
+    }
+
+    @GetMapping("/meeting/summary")
+    public MeetingSummaryDto getMeetingSummary(@RequestParam String code) {
+        // 사용자가 소속된 회의 목록을 서비스에서 가져옴
+        return meetingService.getMeetingsSummary(code);
     }
     //회의실 생성
     @PostMapping("/meeting")

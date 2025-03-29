@@ -40,7 +40,7 @@ public class TodoController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping()
     public String updateStatus(@RequestBody String id) {
         return todoService.updateStatus(id);
     }

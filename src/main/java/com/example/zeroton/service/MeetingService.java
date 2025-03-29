@@ -2,12 +2,15 @@ package com.example.zeroton.service;
 
 import com.example.zeroton.config.SecurityConfig;
 import com.example.zeroton.dto.CustomUserDetails;
+import com.example.zeroton.dto.MeetingSummaryDto;
 import com.example.zeroton.entity.Meeting;
 import com.example.zeroton.entity.Member;
 import com.example.zeroton.entity.Message;
+import com.example.zeroton.entity.Todo;
 import com.example.zeroton.repository.MeetingRepository;
 import com.example.zeroton.repository.MemberRepository;
 import com.example.zeroton.repository.MessageRepository;
+import com.example.zeroton.repository.TodoRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,12 +32,13 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
+    private final TodoRepository todoRepository;
     private final AiService aiService;
     private final SecurityConfig securityConfig;
 
-    public String createMeeting(String title){
+    public String createMeeting(String title) {
 
-        try{
+        try {
             //현재 로그인한 사용자 정보 불러오기
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -47,7 +51,8 @@ public class MeetingService {
             meetingRepository.save(meeting);
             joinMeeting(meeting.getCode());
             return meeting.getCode();
-        }catch (Exception e){
+        } catch (Exception e) {
+
             e.printStackTrace();
             return "error";
         }
@@ -55,7 +60,7 @@ public class MeetingService {
 
     }
 
-    public String joinMeeting(String code){
+    public String joinMeeting(String code) {
         //현재 로그인한 사용자 정보 불러오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -63,19 +68,19 @@ public class MeetingService {
 
         Optional<Meeting> found = meetingRepository.findByCode(code);
 
-        if(found.isPresent()){
+        if (found.isPresent()) {
             Meeting meeting = found.get();
             meeting.getParticipants().add(currentMember.getObjectId());
             meetingRepository.save(meeting);
             return "회의 참가 완료!";
-        }else{
+        } else {
             return "코드를 다시 확인해주세요.";
         }
     }
 
     public String endMeeting(String code) throws JsonProcessingException {
         Optional<Meeting> found = meetingRepository.findByCode(code);
-        if(found.isPresent()){
+        if (found.isPresent()) {
             Meeting meeting = found.get();
             List<Message> foundMessages = messageRepository.findAllByMeetingIdOrderByCreatedAt(meeting.getCode());
 
@@ -108,10 +113,9 @@ public class MeetingService {
             meetingRepository.save(meeting);
 
 
-
             return aiResult;
 
-        }else{
+        } else {
             return "코드를 다시 확인해주세요.";
         }
     }
@@ -123,10 +127,39 @@ public class MeetingService {
 
         // 현재 멤버의 objectId를 가져옴
         Member currentMember = memberRepository.findById(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("Member not found"));
-        System.out.println(currentMember.getName());
+//        System.out.println(currentMember.getName());
         // currentMember.getObjectId()가 participants에 포함된 모든 회의 조회
         return meetingRepository.findAllByParticipantsContaining(currentMember.getObjectId());
     }
 
 
+    public MeetingSummaryDto getMeetingsSummary(String code) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Member currentMember = memberRepository.findById(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        Meeting meeting = meetingRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Meeting not found"));
+
+        if (!meeting.getParticipants().contains(currentMember.getObjectId())) {
+            throw new RuntimeException("User is not a participant of this meeting");
+        }
+
+        // ✅ 로그 추가: meetingId 확인
+        System.out.println("Meeting ID: " + meeting.getObjectId());
+
+        List<Todo> todos = todoRepository.findByMeetingId(meeting.getObjectId());
+
+        // ✅ 로그 추가: 조회된 Todo 리스트 확인
+        System.out.println("Todos found: " + todos.size());
+        for (Todo todo : todos) {
+            System.out.println("Todo: " + todo.getContent());
+        }
+
+        return new MeetingSummaryDto(meeting, todos);
+    }
+
 }
+
