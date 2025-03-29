@@ -129,7 +129,7 @@ public class MeetingService {
         Member currentMember = memberRepository.findById(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("Member not found"));
 //        System.out.println(currentMember.getName());
         // currentMember.getObjectId()가 participants에 포함된 모든 회의 조회
-        return meetingRepository.findAllByParticipantsContaining(currentMember.getObjectId());
+        return meetingRepository.findAllByParticipantsContaining(currentMember.getName());
     }
 
 
@@ -142,7 +142,7 @@ public class MeetingService {
 
         Optional<Member> currentMember = memberRepository.findById(userDetails.getUsername());
         if(!currentMember.isPresent()){
-            log.info("에러 발생23123213213123123");
+
             return null;
         }
 
