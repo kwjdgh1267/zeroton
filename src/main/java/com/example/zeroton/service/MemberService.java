@@ -27,11 +27,14 @@ public class MemberService {
     public String signUp(String id, String password, String name){
         Optional<Member> user = memberRepository.findById(id);
         if(user.isPresent()){
-            return "already exist"; //상태코드 반환하도록 수정해야함.
+            return memberRepository.findById(id).get().getObjectId()+" already exist"; //상태코드 반환하도록 수정해야함.
+
         }
         Member member = new Member(id, password,name);
         memberRepository.save(member);
+        System.out.println(memberRepository.findById(id));
         return "sign up";
+
     }
 
     @Transactional

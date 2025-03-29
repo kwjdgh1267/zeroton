@@ -36,9 +36,9 @@ public class MeetingService {
     private final AiService aiService;
     private final SecurityConfig securityConfig;
 
-    public String createMeeting(String title) {
+    public String createMeeting(String title){
 
-        try {
+        try{
             //현재 로그인한 사용자 정보 불러오기
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -46,13 +46,12 @@ public class MeetingService {
 
             //미팅 객체 만들기
             Meeting meeting = new Meeting(title);
-            meeting.setHost(currentMember.getObjectId());
+            meeting.setHost(currentMember.getName());
             meeting.setCode(UUID.randomUUID().toString());
             meetingRepository.save(meeting);
             joinMeeting(meeting.getCode());
             return meeting.getCode();
-        } catch (Exception e) {
-
+        }catch (Exception e){
             e.printStackTrace();
             return "error";
         }
@@ -60,7 +59,7 @@ public class MeetingService {
 
     }
 
-    public String joinMeeting(String code) {
+    public String joinMeeting(String code){
         //현재 로그인한 사용자 정보 불러오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -68,19 +67,19 @@ public class MeetingService {
 
         Optional<Meeting> found = meetingRepository.findByCode(code);
 
-        if (found.isPresent()) {
+        if(found.isPresent()){
             Meeting meeting = found.get();
-            meeting.getParticipants().add(currentMember.getObjectId());
+            meeting.getParticipants().add(currentMember.getName());
             meetingRepository.save(meeting);
             return "회의 참가 완료!";
-        } else {
+        }else{
             return "코드를 다시 확인해주세요.";
         }
     }
 
     public String endMeeting(String code) throws JsonProcessingException {
         Optional<Meeting> found = meetingRepository.findByCode(code);
-        if (found.isPresent()) {
+        if(found.isPresent()){
             Meeting meeting = found.get();
             List<Message> foundMessages = messageRepository.findAllByMeetingIdOrderByCreatedAt(meeting.getCode());
 
@@ -113,9 +112,10 @@ public class MeetingService {
             meetingRepository.save(meeting);
 
 
+
             return aiResult;
 
-        } else {
+        }else{
             return "코드를 다시 확인해주세요.";
         }
     }
@@ -134,32 +134,58 @@ public class MeetingService {
 
 
     public MeetingSummaryDto getMeetingsSummary(String code) {
+        // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        Member currentMember = memberRepository.findById(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        // 현재 멤버의 objectId를 가져옴
 
+        Optional<Member> currentMember = memberRepository.findById(userDetails.getUsername());
+        if(!currentMember.isPresent()){
+            log.info("에러 발생23123213213123123");
+            return null;
+        }
+
+
+        // 코드로 회의 찾기
         Meeting meeting = meetingRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Meeting not found"));
 
-        if (!meeting.getParticipants().contains(currentMember.getObjectId())) {
+        // 사용자가 해당 회의의 참가자인지 확인
+        if (!meeting.getParticipants().contains(currentMember.get().getName())) {
             throw new RuntimeException("User is not a participant of this meeting");
         }
 
-        // ✅ 로그 추가: meetingId 확인
-        System.out.println("Meeting ID: " + meeting.getObjectId());
-
+        // 해당 회의의 todo 리스트 가져오기
         List<Todo> todos = todoRepository.findByMeetingId(meeting.getObjectId());
 
-        // ✅ 로그 추가: 조회된 Todo 리스트 확인
-        System.out.println("Todos found: " + todos.size());
-        for (Todo todo : todos) {
-            System.out.println("Todo: " + todo.getContent());
+        // 결과 반환
+        MeetingSummaryDto meetingSummaryDto = new MeetingSummaryDto(meeting, todos);
+
+        // 참가자 목록을 Member로부터 이름만 가져오기
+        List<String> participantNames = new ArrayList<>();
+        for (String participantName : meeting.getParticipants()) {
+            // ObjectId로 변환하여 Member 조회
+            Optional<Member> participant = memberRepository.findByName(participantName); // 여기에 ObjectId로 변환 시도
+
+            if (participant.isPresent()) {
+                System.out.println(participant.get().getName());
+                participantNames.add(participant.get().getName());  // 참가자 이름을 리스트에 추가
+            } else {
+
+                participantNames.add("Unknown");
+            }
         }
 
-        return new MeetingSummaryDto(meeting, todos);
+        meetingSummaryDto.setParticipants(participantNames);
+        Optional<Member> host = memberRepository.findByName(meetingSummaryDto.getHost());// 참가자 이름을 추가
+        meetingSummaryDto.setHost(host.get().getName());  // 참가자 이름을 추가
+
+        return meetingSummaryDto;
     }
 
+    public void DeleteAllMeeting() {
+        memberRepository.deleteAll();
+    }
 }
 
