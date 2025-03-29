@@ -2,10 +2,12 @@ package com.example.zeroton.controller;
 
 import com.example.zeroton.dto.TodoDto;
 import com.example.zeroton.service.TodoService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -17,7 +19,7 @@ public class TodoController {
         this.todoService = todoService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<TodoDto>> getAllTodos() {
         return ResponseEntity.ok(todoService.getAllTodos());
     }
@@ -41,9 +43,18 @@ public class TodoController {
 
 
     @PutMapping()
-    public String updateStatus(@RequestBody String id) {
-        return todoService.updateStatus(id);
+    public ResponseEntity<String> updateStatus(@RequestBody Map<String, Object> request) {
+        String id = (String) request.get("objectId");
+        boolean status = (Boolean) request.get("status");
+        System.out.println("받은 Todo ID: " + id + " 받은 status: " + status);
+        String result = todoService.updateStatus(id, status);
+        if (result != null) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상태 변경 실패");
+        }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTodo(@PathVariable String id) {

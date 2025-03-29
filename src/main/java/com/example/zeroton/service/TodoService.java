@@ -40,12 +40,14 @@ public class TodoService {
             return TodoDto.fromEntity(todoRepository.save(todo));
         });
     }
-    public String updateStatus(String id) {
+
+    public String updateStatus(String id, Boolean status) {
 
         Optional<Todo> found = todoRepository.findById(id);
         if (found.isPresent()) {
             Todo todo = found.get();
-            todo.setStatus(!(todo.isStatus()));
+            todo.setStatus(status);
+            todoRepository.save(todo);
             return "status : " + todo.isStatus();
         }
         else{

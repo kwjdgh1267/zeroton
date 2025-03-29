@@ -34,7 +34,6 @@ public class MeetingController {
         return meetingService.createMeeting(title);
     }
 
-
     //회의실 참가
     @PostMapping("/meeting/join")
     public String joinMeeting(@RequestParam String code){
@@ -44,6 +43,10 @@ public class MeetingController {
     @PostMapping("/meeting/end")
     public String endMeeting(@RequestParam String code) throws JsonProcessingException {
         return meetingService.endMeeting(code);
+    }
+    @DeleteMapping("/meeting")
+    public void DeleteAllMeeting() {
+        meetingService.DeleteAllMeeting();
     }
 
 

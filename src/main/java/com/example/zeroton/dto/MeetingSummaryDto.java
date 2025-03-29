@@ -39,12 +39,6 @@ public class MeetingSummaryDto {
         this.updatedAt = meeting.getUpdatedAt();
 
         // ✅ todos 변환 (리스트 전체 변환 메서드 사용)
-        if (todos != null && !todos.isEmpty()) {
-            this.todos = TodoDto.fromEntityList(todos);
-            System.out.println("Todos successfully converted: " + this.todos.size());
-        } else {
-            this.todos = new ArrayList<>();
-            System.out.println("No todos found for this meeting.");
-        }
+        this.todos = todos != null ? TodoDto.fromEntityList(todos) : new ArrayList<>();
     }
 }
